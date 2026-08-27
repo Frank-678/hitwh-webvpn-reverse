@@ -5,6 +5,28 @@
   const CRYPTO_JS_URL =
     'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js';
 
+  function isIpv4(hostname) {
+    const parts = hostname.split('.');
+    return (
+      parts.length === 4 &&
+      parts.every((part) => {
+        if (!/^\d+$/.test(part)) return false;
+        const value = Number(part);
+        return value >= 0 && value <= 255;
+      })
+    );
+  }
+
+  function isHitwhHostname(hostname) {
+    return hostname === 'hitwh.edu.cn' || hostname.endsWith('.hitwh.edu.cn');
+  }
+
+  function assertSupportedHostname(hostname) {
+    if (!isIpv4(hostname) && !isHitwhHostname(hostname)) {
+      throw new TypeError('仅支持 IPv4 地址和 hitwh.edu.cn 域名。');
+    }
+  }
+
   function parseTarget(source) {
     const value = source.trim();
     if (!value) {
@@ -46,6 +68,7 @@
     if (target.username || target.password) {
       throw new TypeError('目标地址不能包含用户名或密码。');
     }
+    assertSupportedHostname(target.hostname);
   } catch (error) {
     const message = error instanceof Error ? error.message : '目标地址无效。';
     console.error('[WebVPN URL Generator]', error);
