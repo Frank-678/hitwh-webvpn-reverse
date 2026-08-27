@@ -1,29 +1,51 @@
-# HITWH WebVPN URL Generator (哈工大威海 WebVPN 链接生成器)
+# HITWH WebVPN URL Generator
 
-本项目通过逆向分析网瑞达 WebVPN 的前端加密算法，实现在**非校园网环境下**，直接生成并访问校内资源的直通链接。
+面向哈尔滨工业大学（威海）WebVPN 的链接生成脚本。它把目标校内 URL 转换为 WebVPN 可识别的加密路由。
 
-当前默认配置用于访问：**哈课表资源 (10.245.146.27:8008)**。
+访问资源仍需要有效的 WebVPN 登录会话，并且仅应访问自己被授权使用的校内资源。
 
-## 核心原理
-WebVPN (`webvpn.hitwh.edu.cn`) 采用 AES-CFB (NoPadding) 对内网 IP 进行加密。由于官方隐藏了前端的自定义跳转入口，本脚本提取了官方固定的 Key 与 IV (`wrdvpnisthebest!`)，在本地计算出合法的加密 Hex 字符串，从而实现自动跳转。
+## 支持范围
 
-## 使用方法 
+| 输入 | 行为 |
+| --- | --- |
+| IP 地址 | 保持原有兼容性，例如 10.245.146.27:8008 |
+| 校内域名 | 支持例如 lab.hit.edu.cn |
+| HTTP / HTTPS | 按输入协议生成对应的 WebVPN 路由；未写协议时默认 HTTPS |
+| 端口、路径、查询参数、片段 | 一并保留 |
 
-无需安装任何插件，通过**浏览器书签**即可一键免校园网访问！
+脚本加密的是目标 URL 的主机部分（域名或 IP 地址，包含非默认端口）；WebVPN 路径中的协议段不再被固定为 HTTP。
 
-1. 在浏览器随便新建一个书签，名字任意。
-2. 编辑该书签，将 `网址 (URL)` 一栏替换为以下代码：
-```javascript
-javascript:(function(){let script=document.createElement('script');script.src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js";script.onload=function(){let host="10.245.146.27:8008";let keyAndIv="wrdvpnisthebest!";let key=CryptoJS.enc.Utf8.parse(keyAndIv);let iv=CryptoJS.enc.Utf8.parse(keyAndIv);let encrypted=CryptoJS.AES.encrypt(host,key,{iv:iv,mode:CryptoJS.mode.CFB,padding:CryptoJS.pad.NoPadding});let hex=CryptoJS.enc.Hex.stringify(iv)+encrypted.ciphertext.toString();window.location.href="https://webvpn.hitwh.edu.cn/http/"+hex+"/"};document.head.appendChild(script);})();
-```
-3. 在非校园网环境下，打开任意网站，再点击该书签，即可瞬间跳转至内网课表资源！
+## 使用方法
 
-## 🛠 开发者模式 (Console)
+1. 先在 WebVPN 中正常登录。
+2. 新建一个浏览器书签，名称任意。
+3. 将书签的网址替换为下面这一行，然后在普通网页中点击该书签：
 
-如果你想访问其他内网 IP，可以在任意合法网页按 `F12` 打开控制台，运行 `calc.js` 中的完整代码，并自行修改 `host` 变量。
+~~~javascript
+javascript:(()=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/Frank-678/hitwh-webvpn-reverse@main/calc.js';s.onerror=()=>alert('无法加载 WebVPN 链接生成脚本，请检查网络后重试。');document.head.appendChild(s)})()
+~~~
 
-## 备注
+4. 在弹窗中输入目标地址。可直接输入：
 
-两种方法都不要在浏览器自带标签页使用。
+   - lab.hit.edu.cn
+   - https://lab.hit.edu.cn/
+   - http://10.245.146.27:8008/
 
-`10.245.146.27:8008`的校外可访问网址，经计算，是`https://webvpn.hitwh.edu.cn/http/77726476706e69737468656265737421a1a70fce736526012a5ec7fecf0f7b65dd15/`
+第一个示例会自动按 HTTPS 处理。脚本会跳转到生成后的 WebVPN 链接。
+
+## 开发者模式
+
+在任意普通网页的开发者工具 Console 中运行 calc.js 的内容，也会打开相同的输入框并完成跳转。
+
+## 验证向量
+
+以下输出用于确认算法和 URL 组装未改变原有 IP 行为，同时支持域名：
+
+| 输入 | 生成结果 |
+| --- | --- |
+| http://10.245.146.27:8008/ | https://webvpn.hitwh.edu.cn/http/77726476706e69737468656265737421a1a70fce736526012a5ec7fecf0f7b65dd15/ |
+| lab.hit.edu.cn | https://webvpn.hitwh.edu.cn/https/77726476706e69737468656265737421fcf643d22f397c1e7b0c9ce29b5b/ |
+
+## 说明
+
+请不要在浏览器内置页面（例如 chrome:// 页面）中运行书签脚本。
