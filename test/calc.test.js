@@ -44,9 +44,9 @@ function expectedUrl(target) {
     cipher.final(),
   ]).toString('hex');
   const route = parsed.protocol.slice(0, -1) +
-    (parsed.port ? \`-\${parsed.port}\` : '');
-  return \`\${WEBVPN_ORIGIN}/\${route}/\${key.toString('hex')}\${ciphertext}\` +
-    \`\${parsed.pathname}\${parsed.search}\${parsed.hash}\`;
+    (parsed.port ? '-' + parsed.port : '');
+  return WEBVPN_ORIGIN + '/' + route + '/' + key.toString('hex') +
+    ciphertext + parsed.pathname + parsed.search + parsed.hash;
 }
 
 function runBookmarklet(promptValues) {
@@ -61,7 +61,8 @@ function runBookmarklet(promptValues) {
     console: { error() {}, log() {} },
     window: {
       alert: (message) => alerts.push(message),
-      location: { assign: (url) => assigned.push(url) },
+      location: { assign: (url) => assigned.push(url),
+      },
       prompt: () => prompts.shift() ?? null,
     },
     document: {
