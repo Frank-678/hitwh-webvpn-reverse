@@ -54,6 +54,7 @@ javascript:(()=>{const s=document.createElement('script');s.src='https://cdn.jsd
    - 也可只输入 HITWH 域名或 IP 字面量；随后输入 <code>http</code> 或 <code>https</code>
 
 脚本会跳转到生成后的 WebVPN 链接。
+
 ## 离线访问 / 下载助手
 
 仓库根目录的 `offline.html` 是一个独立的静态页面，不依赖当前网页的 CSP。它默认填入新教务系统 `http://jwts.hitwh.edu.cn/`，打开后会立即生成对应的官方 WebVPN 路由。
@@ -94,5 +95,5 @@ javascript:(()=>{const s=document.createElement('script');s.src='https://cdn.jsd
 ~~~bash
 node --check calc.js
 node --check webvpn-core.js
-node --test test/calc.test.js test/webvpn-core.test.js
+node --test test/calc.test.js test/webvpn-core.test.js test/offline.test.js
 ~~~
