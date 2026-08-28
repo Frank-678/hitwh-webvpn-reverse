@@ -157,7 +157,7 @@ test('rejects hit.edu.cn before loading CryptoJS', () => {
   const result = runBookmarklet(['https://labsafe.hit.edu.cn/']);
   assert.equal(result.scripts.length, 0);
   assert.deepEqual(result.assigned, []);
-  assert.match(result.alerts[0], /仅支持 IP 地址和 hitwh\\.edu\\.cn 域名/);
+  assert.match(result.alerts[0], /仅支持 IP 地址和 hitwh\.edu\.cn 域名/);
 });
 
 test('rejects other domains before loading CryptoJS', () => {
