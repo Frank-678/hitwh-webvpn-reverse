@@ -59,3 +59,11 @@
 - **不可转换：** `*.hit.edu.cn` 和其他非 `hitwh.edu.cn` 域名；不合法的 IP 地址。
 - **WebVPN 登录状态：** 已通过安全认证流程进入 WebVPN 首页。
 - **尚待登录后确认：** 每个实际校内资源的最终页面内容与权限。Cloud Browser URL 策略阻止了本次登录后导航；WebVPN 的登录/服务端策略仍是最终裁决。
+
+## 本地静态助手集成核验
+
+- 核验日期：2026-08-28；运行环境为仅监听 `127.0.0.1` 的临时静态服务器，未登录 WebVPN，未打开任何生成后的 WebVPN 链接。
+- `offline.html` 成功加载 CryptoJS 4.2.0；浏览器未报告 SRI 或 CORS 错误。唯一控制台错误为临时服务器未提供 `favicon.ico` 的 404，与页面功能无关。
+- 默认输入 `http://jwts.hitwh.edu.cn/` 生成预期的官方 WebVPN 路由；带路径、查询参数和片段的 JWTS 输入也完整保留这些部分。
+- 回归结果：`node --check calc.js`、`node --check webvpn-core.js` 通过；Node 测试共 16 项全部通过。
+- 此记录只证明本地生成器与浏览器资源完整性流程；不证明 WebVPN 登录后资源内容、账号权限或教务操作结果。
