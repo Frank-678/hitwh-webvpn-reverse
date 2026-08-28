@@ -45,7 +45,7 @@ https://webvpn.hitwh.edu.cn/http/{密文}/
 4. 将书签的网址替换为下面这一行，然后在该普通网页中点击书签：
 
 ~~~javascript
-javascript:(()=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/Frank-678/hitwh-webvpn-reverse@main/calc.js';s.onerror=()=>alert('无法加载 WebVPN 链接生成脚本，请检查网络后重试。');document.head.appendChild(s)})()
+javascript:(()=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/Frank-678/hitwh-webvpn-reverse@7fff1de/calc.js';s.integrity='sha384-lhZHEZEdrJUnk8V7oXjBmQdSU7WPt6kW0vqh82y7BvhwAaE6pqyDDIoFUZYhrrHJ';s.crossOrigin='anonymous';s.referrerPolicy='no-referrer';s.onerror=()=>alert('无法加载 WebVPN 链接生成脚本，请检查网络后重试。');document.head.appendChild(s)})()
 ~~~
 
 5. 输入目标地址：
@@ -55,20 +55,20 @@ javascript:(()=>{const s=document.createElement('script');s.src='https://cdn.jsd
 
 脚本会跳转到生成后的 WebVPN 链接。
 
-## 离线访问 / 下载助手
+## 本地静态访问 / 下载助手
 
-仓库根目录的 `offline.html` 是一个独立的静态页面，不依赖当前网页的 CSP。它默认填入新教务系统 `http://jwts.hitwh.edu.cn/`，打开后会立即生成对应的官方 WebVPN 路由。
+仓库根目录的 `offline.html` 是一个独立的本地静态页面，不依赖当前网页的 CSP。它默认填入新教务系统 `http://jwts.hitwh.edu.cn/`，打开后会立即生成对应的官方 WebVPN 路由。
 
 1. 将 `offline.html` 和 `webvpn-core.js` 下载到同一文件夹。
 2. 在已登录官方 WebVPN 的普通浏览器中打开 `offline.html`。
 3. 对新教务系统可直接使用默认地址；其他资源请粘贴完整 HTTP(S) 地址，然后点击“生成 WebVPN 链接”。
 4. 复制结果或点击“在新标签页打开”。路径、查询参数和片段会被保留；因此资源服务器正常返回下载内容时，浏览器会按其响应处理下载。
 
-该页面不会保存账号、密码或验证码，也不绕过学校的登录、WebVPN 或资源权限控制。它需要联网加载 CryptoJS；能否查看或下载资源仍取决于你的 WebVPN 登录状态、目标系统权限和服务器响应。
+该页面不会保存账号、密码或验证码，也不绕过学校的登录、WebVPN 或资源权限控制。它需要联网加载已固定完整性校验的 CryptoJS；能否查看或下载资源仍取决于你的 WebVPN 登录状态、目标系统权限和服务器响应。浏览器原生 Web Crypto API 不提供 AES-CFB，而官方 WebVPN 路由格式依赖该模式，因此当前保留兼容实现 CryptoJS 4.2.0；它已停止维护，只接收公开路由材料，不传入账号、密码、Cookie 或会话令牌。后续若更换依赖，必须重新计算 SRI 并运行全部路由回归测试。
 
 ## CSP 限制
 
-书签会动态加载两个外部脚本：来自 <code>cdn.jsdelivr.net</code> 的本项目脚本，以及来自 <code>cdnjs.cloudflare.com</code> 的 CryptoJS。当前网页的 Content Security Policy（CSP）会限制这两个加载行为。
+书签会动态加载两个外部脚本：来自 <code>cdn.jsdelivr.net</code> 的已审查提交 `7fff1de`，以及来自 <code>cdnjs.cloudflare.com</code> 的 CryptoJS 4.2.0。两者均使用 SHA-384 Subresource Integrity（SRI）、匿名 CORS 和无 Referer 加载；当前网页的 Content Security Policy（CSP）仍会限制这两个加载行为。
 
 因此，浏览器内置页面（例如 <code>chrome://</code> 页面）、GitHub 等 CSP 不允许上述来源的网页，不能运行该书签。出现 <code>violates the following Content Security Policy</code> 时，请改在普通网页中运行；本项目不提供绕过 CSP 的方式。
 
@@ -95,5 +95,5 @@ javascript:(()=>{const s=document.createElement('script');s.src='https://cdn.jsd
 ~~~bash
 node --check calc.js
 node --check webvpn-core.js
-node --test test/calc.test.js test/webvpn-core.test.js test/offline.test.js
+node --test test/calc.test.js test/webvpn-core.test.js test/offline.test.js test/readme.test.js
 ~~~
