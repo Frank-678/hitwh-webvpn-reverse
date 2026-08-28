@@ -54,6 +54,16 @@ javascript:(()=>{const s=document.createElement('script');s.src='https://cdn.jsd
    - 也可只输入 HITWH 域名或 IP 字面量；随后输入 <code>http</code> 或 <code>https</code>
 
 脚本会跳转到生成后的 WebVPN 链接。
+## 离线访问 / 下载助手
+
+仓库根目录的 `offline.html` 是一个独立的静态页面，不依赖当前网页的 CSP。它默认填入新教务系统 `http://jwts.hitwh.edu.cn/`，打开后会立即生成对应的官方 WebVPN 路由。
+
+1. 将 `offline.html` 和 `webvpn-core.js` 下载到同一文件夹。
+2. 在已登录官方 WebVPN 的普通浏览器中打开 `offline.html`。
+3. 对新教务系统可直接使用默认地址；其他资源请粘贴完整 HTTP(S) 地址，然后点击“生成 WebVPN 链接”。
+4. 复制结果或点击“在新标签页打开”。路径、查询参数和片段会被保留；因此资源服务器正常返回下载内容时，浏览器会按其响应处理下载。
+
+该页面不会保存账号、密码或验证码，也不绕过学校的登录、WebVPN 或资源权限控制。它需要联网加载 CryptoJS；能否查看或下载资源仍取决于你的 WebVPN 登录状态、目标系统权限和服务器响应。
 
 ## CSP 限制
 
@@ -82,5 +92,7 @@ javascript:(()=>{const s=document.createElement('script');s.src='https://cdn.jsd
 ## 测试
 
 ~~~bash
-node --test test/calc.test.js
+node --check calc.js
+node --check webvpn-core.js
+node --test test/calc.test.js test/webvpn-core.test.js
 ~~~
