@@ -17,13 +17,18 @@
     );
   }
 
+  function isIpv6(hostname) {
+    // URL 会先校验 IPv6 语法；这里仅识别其标准化后的方括号表示。
+    return /^\[[\da-f:.]+\]$/i.test(hostname);
+  }
+
   function isHitwhHostname(hostname) {
     return hostname === 'hitwh.edu.cn' || hostname.endsWith('.hitwh.edu.cn');
   }
 
   function assertSupportedHostname(hostname) {
-    if (!isIpv4(hostname) && !isHitwhHostname(hostname)) {
-      throw new TypeError('仅支持 IPv4 地址和 hitwh.edu.cn 域名。');
+    if (!isIpv4(hostname) && !isIpv6(hostname) && !isHitwhHostname(hostname)) {
+      throw new TypeError('仅支持 IP 地址和 hitwh.edu.cn 域名。');
     }
   }
 
