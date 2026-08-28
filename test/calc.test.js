@@ -160,6 +160,13 @@ test('rejects hit.edu.cn before loading CryptoJS', () => {
   assert.match(result.alerts[0], /仅支持 IP 地址和 hitwh\\.edu\\.cn 域名/);
 });
 
+test('rejects other domains before loading CryptoJS', () => {
+  const result = runBookmarklet(['https://example.com/']);
+  assert.equal(result.scripts.length, 0);
+  assert.deepEqual(result.assigned, []);
+  assert.match(result.alerts[0], /仅支持 IP 地址和 hitwh\.edu\.cn 域名/);
+});
+
 test('rejects a malformed IPv4 address before loading CryptoJS', () => {
   const result = runBookmarklet(['http://999.245.146.27/']);
   assert.equal(result.scripts.length, 0);
