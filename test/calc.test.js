@@ -103,11 +103,61 @@ test('preserves a known HITWH service path', () => {
   assert.deepEqual(result.assigned, [expectedUrl(input)]);
 });
 
+test('converts a valid IPv6 literal', () => {
+  const input = 'http://[2001:db8::1]:8443/portal?from=webvpn';
+  const result = runBookmarklet([input]);
+  assert.deepEqual(result.alerts, []);
+  assert.deepEqual(result.assigned, [expectedUrl(input)]);
+});
+
+test('accepts IPv4 resources shown in the screenshots', () => {
+  const addresses = [
+    '10.245.146.27:8008',
+    '10.245.130.178',
+    '10.245.130.79',
+    '172.26.24.11',
+    '172.26.64.9',
+    '172.26.64.16',
+    '192.168.43.161',
+    '222.194.14.94',
+    '222.194.15.1',
+    '222.194.15.155',
+  ];
+
+  for (const address of addresses) {
+    const input = 'http://' + address + '/';
+    const result = runBookmarklet([input]);
+    assert.deepEqual(result.alerts, [], input);
+    assert.deepEqual(result.assigned, [expectedUrl(input)], input);
+  }
+});
+
+test('accepts HITWH resources shown in the screenshots', () => {
+  const hostnames = [
+    'hitwh.edu.cn',
+    'www.hitwh.edu.cn',
+    'ndkh.hitwh.edu.cn',
+    'szsj.hitwh.edu.cn',
+    'yjsgl.hitwh.edu.cn',
+    'lib.hitwh.edu.cn',
+    'cwoa.hitwh.edu.cn',
+    'cwcx.hitwh.edu.cn',
+    'jwts.hitwh.edu.cn',
+  ];
+
+  for (const hostname of hostnames) {
+    const input = 'http://' + hostname + '/';
+    const result = runBookmarklet([input]);
+    assert.deepEqual(result.alerts, [], input);
+    assert.deepEqual(result.assigned, [expectedUrl(input)], input);
+  }
+});
+
 test('rejects hit.edu.cn before loading CryptoJS', () => {
   const result = runBookmarklet(['https://labsafe.hit.edu.cn/']);
   assert.equal(result.scripts.length, 0);
   assert.deepEqual(result.assigned, []);
-  assert.match(result.alerts[0], /仅支持 IPv4 地址和 hitwh\.edu\.cn 域名/);
+  assert.match(result.alerts[0], /仅支持 IP 地址和 hitwh\\.edu\\.cn 域名/);
 });
 
 test('rejects a malformed IPv4 address before loading CryptoJS', () => {
