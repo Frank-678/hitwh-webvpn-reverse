@@ -28,12 +28,12 @@ https://webvpn.hitwh.edu.cn/http/{密文}/
 
 | 输入 | 行为 |
 | --- | --- |
-| 合法 IPv4 地址 | 支持例如 10.245.146.27、172.26.64.16、192.168.43.161、222.194.15.1 |
+| 合法 IPv4 / IPv6 字面量 | 支持 IPv4，例如 10.245.146.27、172.26.64.16、192.168.43.161、222.194.15.1；IPv6 必须带方括号，例如 `[2001:db8::1]` |
 | HITWH 域名 | 支持 <code>hitwh.edu.cn</code> 及其子域名，例如 <code>jwts.hitwh.edu.cn</code>、<code>cwoa.hitwh.edu.cn</code>、<code>lib.hitwh.edu.cn</code> |
-| HTTP / HTTPS | 完整 URL 保留原协议；只输入主机名或 IPv4 时，脚本会要求明确选择协议 |
+| HTTP / HTTPS | 完整 URL 保留原协议；只输入主机名或 IP 字面量时，脚本会要求明确选择协议 |
 | 非默认端口 | 输出为 <code>http-端口</code> 或 <code>https-端口</code> 路由 |
 | 路径、查询参数、片段 | 一并保留 |
-| 不支持的主机 | <code>*.hit.edu.cn</code>、IPv6 和其他域名会在加载加密库前被拒绝 |
+| 不支持的主机 | <code>*.hit.edu.cn</code>、其他域名和不合法的 IP 地址会在加载加密库前被拒绝 |
 
 “支持”仅指 URL 路由格式可生成；资源是否可访问仍由 WebVPN 的服务端策略和你的登录权限决定。
 
@@ -51,7 +51,7 @@ javascript:(()=>{const s=document.createElement('script');s.src='https://cdn.jsd
 5. 输入目标地址：
 
    - 粘贴完整 URL，例如 http://jwts.hitwh.edu.cn/、http://cwoa.hitwh.edu.cn/gzoa/ 或 http://10.245.146.27:8008/
-   - 也可只输入 HITWH 域名或 IPv4 地址；随后输入 <code>http</code> 或 <code>https</code>
+   - 也可只输入 HITWH 域名或 IP 字面量；随后输入 <code>http</code> 或 <code>https</code>
 
 脚本会跳转到生成后的 WebVPN 链接。
 
@@ -72,6 +72,12 @@ javascript:(()=>{const s=document.createElement('script');s.src='https://cdn.jsd
 | http://10.245.146.27:8008/ | https://webvpn.hitwh.edu.cn/http-8008/77726476706e69737468656265737421a1a70fce736526012a5ec7fecf/ |
 | http://jwts.hitwh.edu.cn/ | https://webvpn.hitwh.edu.cn/http/77726476706e69737468656265737421fae0558f693861446900c7a99c406d3667/ |
 | http://cwoa.hitwh.edu.cn/gzoa/ | https://webvpn.hitwh.edu.cn/http/77726476706e69737468656265737421f3e04e9d693861446900c7a99c406d3687/gzoa/ |
+
+## 现场验证
+
+截图中的 19 个实际资源地址已在未登录浏览器中实际打开其转换路由，并均到达 WebVPN 的统一身份认证页；合法 IPv6 字面量也已完成同样的路由验证。完整的输入、转换结果、判定标准和未验证边界见 [现场验证记录](docs/live-validation.md)。
+
+“到达认证页”只说明 WebVPN 接受路由格式。资源最终能否打开仍取决于登录状态、服务端策略和账号权限。
 
 ## 测试
 
