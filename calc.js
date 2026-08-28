@@ -3,7 +3,9 @@
   const WEBVPN_ORIGIN = 'https://webvpn.hitwh.edu.cn';
   const KEY_AND_IV = 'wrdvpnisthebest!';
   const CRYPTO_JS_URL =
-    'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js';
+    'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js';
+  const CRYPTO_JS_INTEGRITY =
+    'sha384-mgWScxWVKP8F7PBbpNp7i/aSb17kN0LcifBpahAplF3Mn0GR4/u1oMpWIm2rD8yY';
 
   function isIpv4(hostname) {
     const parts = hostname.split('.');
@@ -83,6 +85,9 @@
 
   const script = document.createElement('script');
   script.src = CRYPTO_JS_URL;
+  script.integrity = CRYPTO_JS_INTEGRITY;
+  script.crossOrigin = 'anonymous';
+  script.referrerPolicy = 'no-referrer';
   script.onload = () => {
     const key = CryptoJS.enc.Utf8.parse(KEY_AND_IV);
     const iv = CryptoJS.enc.Utf8.parse(KEY_AND_IV);

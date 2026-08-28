@@ -77,7 +77,10 @@ function loadPage(buildWebvpnUrl) {
 
 test('offline helper loads the reusable core and generates JWTS by default', () => {
   assert.match(html, /src="\.\/webvpn-core\.js"/);
-  assert.match(html, /crypto-js\/4\.1\.1\/crypto-js\.min\.js/);
+  assert.match(html, /crypto-js\/4\.2\.0\/crypto-js\.min\.js/);
+  assert.match(html, /integrity="sha384-mgWScxWVKP8F7PBbpNp7i\/aSb17kN0LcifBpahAplF3Mn0GR4\/u1oMpWIm2rD8yY"/);
+  assert.match(html, /crossorigin="anonymous"/);
+  assert.match(html, /referrerpolicy="no-referrer"/);
 
   const calls = [];
   const { cryptoJs, elements } = loadPage((source, passedCryptoJs) => {

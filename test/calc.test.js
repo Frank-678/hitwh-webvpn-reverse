@@ -89,6 +89,15 @@ test('keeps the official IPv4 + port route unchanged', () => {
   ]);
 });
 
+test('pins the CryptoJS asset with SRI', () => {
+  const result = runBookmarklet(['http://jwts.hitwh.edu.cn/']);
+  assert.equal(result.scripts.length, 1);
+  assert.equal(result.scripts[0].src, 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js');
+  assert.equal(result.scripts[0].integrity, 'sha384-mgWScxWVKP8F7PBbpNp7i/aSb17kN0LcifBpahAplF3Mn0GR4/u1oMpWIm2rD8yY');
+  assert.equal(result.scripts[0].crossOrigin, 'anonymous');
+  assert.equal(result.scripts[0].referrerPolicy, 'no-referrer');
+});
+
 test('supports a known HITWH service', () => {
   const input = 'http://jwts.hitwh.edu.cn/';
   const result = runBookmarklet([input]);
