@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>HITWH WebVPN 离线访问助手</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.5;
+      }
+
+      body {
+        margin: 0;
+        min-width: 320px;
+        background: #f4f7fb;
+        color: #172033;
+      }
+
+      main {
+        box-sizing: border-box;
+        width: min(720px, 100%);
+        margin: 0 auto;
+        padding: 40px 20px;
+      }
+
+      section {
+        padding: 28px;
+        border: 1px solid #dbe4f0;
+        border-radius: 16px;
+        background: #fff;
+        box-shadow: 0 12px 32px rgb(28 49 89 / 8%);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(1.5rem, 5vw, 2rem);
+      }
+
+      .intro {
+        margin: 10px 0 24px;
+        color: #5f6b7d;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 650;
+      }
+
+      input,
+      textarea,
+      button,
+      a.button {
+        box-sizing: border-box;
+        width: 100%;
+        border-radius: 10px;
+        font: inherit;
+      }
+
+      input,
+      textarea {
+        border: 1px solid #aebdce;
+        padding: 12px;
+        color: inherit;
+        background: #fff;
+      }
+
+      input:focus,
+      textarea:focus,
+      button:focus-visible,
+      a.button:focus-visible {
+        outline: 3px solid #7eb6ff;
+        outline-offset: 2px;
+      }
+
+      textarea {
+        min-height: 128px;
+        resize: vertical;
+      }
+
+      .actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      button,
+      a.button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        border: 0;
+        padding: 10px 14px;
+        background: #1769e0;
+        color: #fff;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      button.secondary {
+        background: #eaf1fb;
+        color: #174a91;
+      }
+
+      a.button[aria-disabled="true"] {
+        cursor: not-allowed;
+        opacity: 0.55;
+        pointer-events: none;
+      }
+
+      .field {
+        margin-top: 20px;
+      }
+
+      #status {
+        min-height: 1.5em;
+        margin: 16px 0 0;
+        color: #275b19;
+      }
+
+      #status.error {
+        color: #b42318;
+      }
+
+      .notice {
+        margin: 22px 0 0;
+        padding: 14px;
+        border-radius: 10px;
+        background: #f4f7fb;
+        color: #526176;
+        font-size: 0.93rem;
+      }
+
+      @media (max-width: 500px) {
+        main {
+          padding: 20px 14px;
+        }
+
+        section {
+          padding: 20px;
+        }
+
+        .actions {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script defer src="./webvpn-core.js"></script>
+  </head>
+  <body>
+    <main>
+      <section aria-labelledby="page-title">
+        <h1 id="page-title">HITWH WebVPN 离线访问助手</h1>
+        <p class="intro">默认已填入新教务系统。粘贴完整校内资源地址后生成官方 WebVPN 链接。</p>
+
+        <form id="generator-form" novalidate>
+          <label for="target-url">校内资源地址</label>
+          <input
+            id="target-url"
+            name="target-url"
+            autocomplete="url"
+            spellcheck="false"
+            inputmode="url"
+            aria-describedby="target-help"
+          >
+          <p id="target-help" class="intro">支持 HTTP(S) 的 IP 地址、hitwh.edu.cn 及其子域名。</p>
+          <button type="submit">生成 WebVPN 链接</button>
+        </form>
+
+        <div class="field">
+          <label for="result-url">生成结果</label>
+          <textarea id="result-url" readonly aria-describedby="status"></textarea>
+        </div>
+
+        <div class="actions">
+          <button id="copy" class="secondary" type="button">复制链接</button>
+          <a id="open" class="button" target="_blank" rel="noopener noreferrer" aria-disabled="true">在新标签页打开</a>
+        </div>
+        <p id="status" aria-live="polite"></p>
+
+        <p class="notice">
+          此页面不会保存账号、密码或验证码，也不会绕过学校的登录和权限控制。请在已登录官方 WebVPN 的普通浏览器中打开生成链接；是否能查看或下载仍由 WebVPN 和目标系统的权限、响应决定。
+        </p>
+      </section>
+    </main>
+
+    <script>
+      window.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('generator-form');
+        const target = document.getElementById('target-url');
+        const result = document.getElementById('result-url');
+        const copy = document.getElementById('copy');
+        const open = document.getElementById('open');
+        const status = document.getElementById('status');
+
+        target.value = 'http://jwts.hitwh.edu.cn/';
+
+        function showStatus(message, isError) {
+          status.textContent = message;
+          status.classList.toggle('error', Boolean(isError));
+        }
+
+        function disableOpen() {
+          open.removeAttribute('href');
+          open.setAttribute('aria-disabled', 'true');
+        }
+
+        function generate() {
+          try {
+            if (!window.WebvpnUrl) {
+              throw new Error('无法加载转换核心，请确认 webvpn-core.js 与本页面位于同一文件夹。');
+            }
+            if (!window.CryptoJS) {
+              throw new Error('无法加载加密库，请检查网络后重试。');
+            }
+            const url = window.WebvpnUrl.buildWebvpnUrl(target.value, window.CryptoJS);
+            result.value = url;
+            open.href = url;
+            open.setAttribute('aria-disabled', 'false');
+            showStatus('链接已生成。请在已登录官方 WebVPN 的浏览器中打开。');
+          } catch (error) {
+            result.value = '';
+            disableOpen();
+            const message = error instanceof Error ? error.message : '目标地址无效。';
+            showStatus('无法生成链接：' + message, true);
+          }
+        }
+
+        form.addEventListener('submit', (event) => {
+          event.preventDefault();
+          generate();
+        });
+
+        copy.addEventListener('click', async () => {
+          if (!result.value) {
+            showStatus('请先生成链接。', true);
+            return;
+          }
+          try {
+            await navigator.clipboard.writeText(result.value);
+            showStatus('链接已复制。');
+          } catch {
+            result.focus();
+            result.select();
+            showStatus('复制权限受限，链接已选中，请手动复制。', true);
+          }
+        });
+
+        disableOpen();
+        generate();
+      });
+    </script>
+  </body>
+</html>
